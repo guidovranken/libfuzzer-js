@@ -17295,7 +17295,7 @@ static JSValue JS_CallInternal(JSContext *ctx, JSValueConst func_obj,
         /* add the backtrace information now (it is not done
            before if the exception happens in a bytecode
            operation */
-        build_backtrace(ctx, ctx->current_exception, NULL, 0, pc);
+        //build_backtrace(ctx, ctx->current_exception, NULL, 0, pc);
     }
     if (!JS_IsUncatchableError(ctx, ctx->current_exception)) {
         while (sp > stack_buf) {
