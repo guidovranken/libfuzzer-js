@@ -34,6 +34,9 @@ CONFIG_LTO=y
 # force 32 bit build for some utilities
 #CONFIG_M32=y
 
+CONFIG_CLANG=y
+CONFIG_DEFAULT_AR=y
+
 ifdef CONFIG_DARWIN
 # use clang instead of gcc
 CONFIG_CLANG=y
