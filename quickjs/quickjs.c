@@ -48,11 +48,14 @@
 
 #define OPTIMIZE         1
 #define SHORT_OPCODES    1
+/*
 #if defined(EMSCRIPTEN)
 #define DIRECT_DISPATCH  0
 #else
 #define DIRECT_DISPATCH  1
 #endif
+*/
+#define DIRECT_DISPATCH  0
 
 #if defined(__APPLE__)
 #define MALLOC_OVERHEAD  0
