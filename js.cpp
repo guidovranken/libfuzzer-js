@@ -1,13 +1,12 @@
 #include <iostream>
 #include <fstream>
-#define JS_H_INTERNAL
-  #include "js.h"
-#undef JS_H_INTERNAL
+#include "js.h"
+extern "C" {
+    #include <quickjs-libc.h>
+}
 
 JS::JS(void) :
-    rt(JS_NewRuntime()),
-    ctx(JS_NewContext(rt)) {
-    /* noret */ js_std_add_helpers(ctx, 0, nullptr);
+    memoryLimit(0) {
 }
         
 void JS::SetBytecode(const std::vector<uint8_t>& bytecode) {
@@ -15,7 +14,7 @@ void JS::SetBytecode(const std::vector<uint8_t>& bytecode) {
 }
 
 void JS::SetMemoryLimit(const size_t limit) {
-    /* noret */ JS_SetMemoryLimit(rt, limit);
+    memoryLimit = limit;
 }
 
 std::vector<uint8_t> JS::CompileJavascript(const std::string& javascriptFilename) {
@@ -87,11 +86,30 @@ err_load:
 }
 
 void JS::Run(const uint8_t* data, const size_t size) {
+    JSRuntime* rt = nullptr;
+    JSContext* ctx = nullptr;
+
     if ( bytecode.empty() ) {
         std::cout << "No bytecode defined" << std::endl;
         exit(1);
     }
 
+    /* Instantiate */
+    {
+        rt = JS_NewRuntime();
+        ctx = JS_NewContext(rt);
+    }
+
+    /* Configure */
+    {
+        if ( memoryLimit ) {
+            /* noret */ JS_SetMemoryLimit(rt, memoryLimit);
+        }
+        /* noret */ JS_SetGCThreshold(rt, -1);
+        /* noret */ js_std_add_helpers(ctx, 0, nullptr);
+    }
+
+    /* Specify input */
     {
         const std::string scriptHeader = "var FuzzerInput = new Uint8Array([";
         std::string scriptBody = "";
@@ -112,6 +130,15 @@ void JS::Run(const uint8_t* data, const size_t size) {
         }
     }
 
-    /* noret */ js_std_eval_binary(ctx, bytecode.data(), bytecode.size(), 0);
-    /* noret */ js_std_loop(ctx);
+    /* Run */
+    {
+        /* noret */ js_std_eval_binary(ctx, bytecode.data(), bytecode.size(), 0);
+        /* noret */ js_std_loop(ctx);
+    }
+
+    /* Free */
+    {
+        /* noret */ JS_FreeContext(ctx);
+        /* noret */ JS_FreeRuntime(rt);
+    }
 }
