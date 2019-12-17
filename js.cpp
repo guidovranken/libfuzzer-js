@@ -8,6 +8,12 @@ extern "C" {
 JS::JS(void) :
     memoryLimit(0) {
 }
+
+void JS::SetBytecode(const std::vector<char>& bytecode) {
+    SetBytecode(std::vector<uint8_t>(
+                (uint8_t*)bytecode.data(),
+                (uint8_t*)(bytecode.data() + bytecode.size())));
+}
         
 void JS::SetBytecode(const std::vector<uint8_t>& bytecode) {
     this->bytecode = bytecode;
@@ -17,18 +23,31 @@ void JS::SetMemoryLimit(const size_t limit) {
     memoryLimit = limit;
 }
 
-std::vector<uint8_t> JS::CompileJavascript(const std::string& javascriptFilename) {
+std::vector<char> JS::LoadFile(const std::string& fn) {
     std::vector<char> buffer;
-    std::ifstream file(javascriptFilename, std::ios::binary | std::ios::ate);
+    std::ifstream file(fn, std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     if ( size <= 0 ) {
-        goto err_load;
+        throw std::runtime_error("LoadFile: Load error");
     }
     file.seekg(0, std::ios::beg);
 
     buffer.resize(size);
     if (!file.read(buffer.data(), size)) {
-        goto err_load;
+        throw std::runtime_error("LoadFile: Read error");
+    }
+
+    return buffer;
+}
+
+std::vector<uint8_t> JS::CompileJavascript(const std::string& javascriptFilename) {
+    std::vector<char> buffer;
+
+    try {
+        buffer = LoadFile(javascriptFilename);
+    } catch ( std::exception ) {
+        std::cout << "Cannot read JavaScript file" << std::endl;
+        exit(1);
     }
 
     {
@@ -79,10 +98,6 @@ err_compile:
         std::cout << "Cannot compile JavaScript file" << std::endl;
         exit(1);
     }
-
-err_load:
-    std::cout << "Cannot read JavaScript file" << std::endl;
-    exit(1);
 }
 
 void JS::Run(const uint8_t* data, const size_t size) {
