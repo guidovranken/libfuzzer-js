@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <stdio.h>
 #include "js.h"
 extern "C" {
     #include <quickjs-libc.h>
@@ -100,7 +101,11 @@ err_compile:
     }
 }
 
-std::optional<std::string> JS::Run(const uint8_t* data, const size_t size) {
+std::optional<std::string> JS::Run(const std::string& data) {
+    return Run(data.data(), data.size(), true);
+}
+
+std::optional<std::string> JS::Run(const void* data, const size_t size, const bool asString) {
     std::optional<std::string> ret = std::nullopt;
 
     JSRuntime* rt = nullptr;
@@ -128,14 +133,24 @@ std::optional<std::string> JS::Run(const uint8_t* data, const size_t size) {
 
     /* Specify input */
     {
-        const std::string scriptHeader = "var FuzzerOutput; var FuzzerInput = new Uint8Array([";
+        const std::string scriptHeader =
+            asString == false ?
+                "var FuzzerOutput; var FuzzerInput = new Uint8Array([" :
+                "var FuzzerOutput; var FuzzerInput = \"";
+
         std::string scriptBody;
-        const std::string scriptFooter = "]);";
+        const std::string scriptFooter = asString == false ? "]);" : "\";";
 
         for (size_t i = 0; i < size; i++) {
-            scriptBody += std::to_string(data[i]);
-            if ( i + 1 != size ) {
-                scriptBody += ",";
+            if ( asString == false ) {
+                scriptBody += std::to_string(((const uint8_t*)data)[i]);
+                if ( i + 1 != size ) {
+                    scriptBody += ",";
+                }
+            } else {
+                char hex[16];
+                sprintf(hex, "\\\\x%02X", ((const uint8_t*)data)[i]);
+                scriptBody += hex;
             }
         }
 

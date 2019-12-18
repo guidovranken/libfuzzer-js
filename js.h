@@ -15,5 +15,6 @@ class JS {
         void SetBytecode(const std::vector<char>& bytecode);
         void SetBytecode(const std::vector<uint8_t>& bytecode);
         void SetMemoryLimit(const size_t limit);
-        std::optional<std::string> Run(const uint8_t* data, const size_t size);
+        std::optional<std::string> Run(const std::string& data);
+        std::optional<std::string> Run(const void* data, const size_t size, const bool asString = false);
 };
