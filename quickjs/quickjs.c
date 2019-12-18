@@ -50294,3 +50294,24 @@ void JS_AddIntrinsicTypedArrays(JSContext *ctx)
     JS_AddIntrinsicAtomics(ctx);
 #endif
 }
+
+int JS_JSStringToChar(const JSValue* _p, char* out) {
+    const JSString* p = (const JSString*)_p->u.ptr;
+
+    if (p == NULL) {
+        return -1;
+    }
+
+    if (p->is_wide_char) {
+        //return -1;
+    }
+
+    if ( out == NULL ) {
+        return p->len;
+    }
+
+    memcpy(out, p->u.str8, p->len);
+    out[p->len] = 0;
+
+    return p->len;
+}

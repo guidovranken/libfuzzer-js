@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 class JS {
     private:
@@ -14,5 +15,5 @@ class JS {
         void SetBytecode(const std::vector<char>& bytecode);
         void SetBytecode(const std::vector<uint8_t>& bytecode);
         void SetMemoryLimit(const size_t limit);
-        void Run(const uint8_t* data, const size_t size);
+        std::optional<std::string> Run(const uint8_t* data, const size_t size);
 };

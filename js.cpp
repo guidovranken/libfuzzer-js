@@ -100,7 +100,9 @@ err_compile:
     }
 }
 
-void JS::Run(const uint8_t* data, const size_t size) {
+std::optional<std::string> JS::Run(const uint8_t* data, const size_t size) {
+    std::optional<std::string> ret = std::nullopt;
+
     JSRuntime* rt = nullptr;
     JSContext* ctx = nullptr;
 
@@ -126,8 +128,8 @@ void JS::Run(const uint8_t* data, const size_t size) {
 
     /* Specify input */
     {
-        const std::string scriptHeader = "var FuzzerInput = new Uint8Array([";
-        std::string scriptBody = "";
+        const std::string scriptHeader = "var FuzzerOutput; var FuzzerInput = new Uint8Array([";
+        std::string scriptBody;
         const std::string scriptFooter = "]);";
 
         for (size_t i = 0; i < size; i++) {
@@ -143,12 +145,36 @@ void JS::Run(const uint8_t* data, const size_t size) {
             js_std_dump_error(ctx);
             exit(1);
         }
+        JS_FreeValue(ctx, val);
     }
 
     /* Run */
     {
         /* noret */ js_std_eval_binary(ctx, bytecode.data(), bytecode.size(), 0);
         /* noret */ js_std_loop(ctx);
+
+
+        /* Extract output */
+        {
+            auto global = JS_GetGlobalObject(ctx);
+            auto val = JS_GetPropertyStr(ctx, global, "FuzzerOutput");
+            if (JS_IsException(val)) {
+                js_std_dump_error(ctx);
+                exit(1);
+            }
+            if (JS_IsString(val)) {
+                int size = JS_JSStringToChar(&val, NULL);
+                if ( size > 0 ) {
+                    char* FuzzerOutput = (char*)malloc(size+1);
+                    JS_JSStringToChar(&val, FuzzerOutput);
+                    printf("%s\n", FuzzerOutput);
+                    ret = std::string(FuzzerOutput);
+                    free(FuzzerOutput);
+                }
+            }
+            JS_FreeValue(ctx, val);
+            JS_FreeValue(ctx, global);
+        }
     }
 
     /* Free */
@@ -156,4 +182,6 @@ void JS::Run(const uint8_t* data, const size_t size) {
         /* noret */ JS_FreeContext(ctx);
         /* noret */ JS_FreeRuntime(rt);
     }
+
+    return ret;
 }

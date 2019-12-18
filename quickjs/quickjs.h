@@ -915,6 +915,8 @@ int JS_SetModuleExportList(JSContext *ctx, JSModuleDef *m,
 #undef js_unlikely
 #undef js_force_inline
 
+int JS_JSStringToChar(const JSValue* _p, char* out);
+
 #ifdef __cplusplus
 } /* extern "C" { */
 #endif
