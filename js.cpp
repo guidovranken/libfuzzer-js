@@ -182,7 +182,6 @@ std::optional<std::string> JS::Run(const void* data, const size_t size, const bo
                 if ( size > 0 ) {
                     char* FuzzerOutput = (char*)malloc(size+1);
                     JS_JSStringToChar(&val, FuzzerOutput);
-                    printf("%s\n", FuzzerOutput);
                     ret = std::string(FuzzerOutput);
                     free(FuzzerOutput);
                 }
