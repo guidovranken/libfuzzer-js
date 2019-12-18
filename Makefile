@@ -7,7 +7,8 @@ quickjs/libquickjs.a :
 	cd quickjs && make libquickjs.a
 
 fuzzer : harness.cpp js.o quickjs/libquickjs.a
-	clang++ -std=c++17 -fsanitize=fuzzer harness.cpp js.o quickjs/libquickjs.a -o fuzzer
+	test $(LIBFUZZER_A_PATH)
+	clang++ -std=c++17 harness.cpp js.o quickjs/libquickjs.a $(LIBFUZZER_A_PATH) -ldl -lpthread -o fuzzer
 
 to_bytecode : to_bytecode.cpp js.o
 	clang++ -std=c++17 -fsanitize=fuzzer-no-link to_bytecode.cpp js.o quickjs/libquickjs.a -ldl -lm -o to_bytecode
