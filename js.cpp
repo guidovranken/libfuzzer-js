@@ -149,7 +149,7 @@ std::optional<std::string> JS::Run(const void* data, const size_t size, const bo
                 }
             } else {
                 char hex[16];
-                sprintf(hex, "\\\\x%02X", ((const uint8_t*)data)[i]);
+                sprintf(hex, "\\x%02X", ((const uint8_t*)data)[i]);
                 scriptBody += hex;
             }
         }
