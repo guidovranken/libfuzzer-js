@@ -34835,7 +34835,7 @@ static JSValue JS_ReadBigNum(BCReaderState *s, int tag)
                         JS_ThrowInternalError(s->ctx, "invalid digit");
                         goto fail;
                     }
-                    v += mp_pow_dec[j] * d;
+                    v += libbf_mp_pow_dec[j] * d;
                 }
                 a->tab[i] = v;
             }

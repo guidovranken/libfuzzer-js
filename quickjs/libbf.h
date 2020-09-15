@@ -379,7 +379,7 @@ int bf_get_int64(int64_t *pres, const bf_t *a, int flags);
 int bf_get_uint64(uint64_t *pres, const bf_t *a);
 
 /* the following functions are exported for testing only. */
-void mp_print_str(const char *str, const limb_t *tab, limb_t n);
+void libbf_mp_print_str(const char *str, const limb_t *tab, limb_t n);
 void bf_print_str(const char *str, const bf_t *a);
 int bf_resize(bf_t *r, limb_t len);
 int bf_get_fft_size(int *pdpl, int *pnb_mods, limb_t len);
@@ -387,14 +387,14 @@ int bf_normalize_and_round(bf_t *r, limb_t prec1, bf_flags_t flags);
 int bf_can_round(const bf_t *a, slimb_t prec, bf_rnd_t rnd_mode, slimb_t k);
 slimb_t bf_mul_log2_radix(slimb_t a1, unsigned int radix, int is_inv,
                           int is_ceil1);
-int mp_mul(bf_context_t *s, limb_t *result, 
+int libbf_mp_mul(bf_context_t *s, limb_t *result, 
            const limb_t *op1, limb_t op1_size, 
            const limb_t *op2, limb_t op2_size);
-limb_t mp_add(limb_t *res, const limb_t *op1, const limb_t *op2, 
+limb_t libbf_mp_add(limb_t *res, const limb_t *op1, const limb_t *op2, 
               limb_t n, limb_t carry);
-limb_t mp_add_ui(limb_t *tab, limb_t b, size_t n);
-int mp_sqrtrem(bf_context_t *s, limb_t *tabs, limb_t *taba, limb_t n);
-int mp_recip(bf_context_t *s, limb_t *tabr, const limb_t *taba, limb_t n);
+limb_t libbf_mp_add_ui(limb_t *tab, limb_t b, size_t n);
+int libbf_mp_sqrtrem(bf_context_t *s, limb_t *tabs, limb_t *taba, limb_t n);
+int libbf_mp_recip(bf_context_t *s, limb_t *tabr, const limb_t *taba, limb_t n);
 limb_t bf_isqrt(limb_t a);
 
 /* transcendental functions */
@@ -524,7 +524,7 @@ int bfdec_atof(bfdec_t *r, const char *str, const char **pnext,
                limb_t prec, bf_flags_t flags);
 
 /* the following functions are exported for testing only. */
-extern const limb_t mp_pow_dec[LIMB_DIGITS + 1];
+extern const limb_t libbf_mp_pow_dec[LIMB_DIGITS + 1];
 void bfdec_print_str(const char *str, const bfdec_t *a);
 static inline int bfdec_resize(bfdec_t *r, limb_t len)
 {
