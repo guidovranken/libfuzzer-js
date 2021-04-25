@@ -54,7 +54,7 @@ std::vector<uint8_t> JS::CompileJavascript(const std::string& javascriptFilename
     {
         std::vector<uint8_t> ret;
         JSRuntime* rt = JS_NewRuntime();
-        JSContext* ctx = JS_NewContextRaw(rt);
+        JSContext* ctx = JS_NewContext(rt);
 
         JS_AddIntrinsicEval(ctx);
         JS_AddIntrinsicRegExpCompiler(ctx);
