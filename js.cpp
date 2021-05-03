@@ -33,10 +33,11 @@ std::vector<char> JS::LoadFile(const std::string& fn) {
     }
     file.seekg(0, std::ios::beg);
 
-    buffer.resize(size);
+    buffer.resize(size+1);
     if (!file.read(buffer.data(), size)) {
         throw std::runtime_error("LoadFile: Read error");
     }
+    buffer[size] = 0x00;
 
     return buffer;
 }
@@ -66,7 +67,7 @@ std::vector<uint8_t> JS::CompileJavascript(const std::string& javascriptFilename
             obj = JS_Eval(
                     ctx,
                     buffer.data(),
-                    buffer.size(),
+                    buffer.size() - 1,
                     javascriptFilename.c_str(),
                     JS_EVAL_FLAG_COMPILE_ONLY | JS_EVAL_TYPE_GLOBAL | JS_EVAL_TYPE_MODULE);
             if (JS_IsException(obj)) {
