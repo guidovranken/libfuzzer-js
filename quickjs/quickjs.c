@@ -113,6 +113,8 @@
 #include <errno.h>
 #endif
 
+__attribute__((section("__libfuzzer_extra_counters"))) unsigned char libfuzzer_bytecode_counter[65536];
+
 enum {
     /* classid tag        */    /* union usage   | properties */
     JS_CLASS_OBJECT = 1,        /* must be first */
@@ -16196,6 +16198,14 @@ static JSValue JS_CallInternal(JSContext *caller_ctx, JSValueConst func_obj,
         int call_argc;
         JSValue *call_argv;
 
+        {
+            uint32_t index = 0;
+            index += ((uint32_t)((b->func_name & 0xFFFF) ^ 0xABCD) << 16);
+            index += (uint32_t)(pc - b->byte_code_buf) << 8;
+            index += *pc;
+            index %= sizeof(libfuzzer_bytecode_counter);
+            libfuzzer_bytecode_counter[index]++;
+        }
         SWITCH(pc) {
         CASE(OP_push_i32):
             *sp++ = JS_NewInt32(ctx, get_u32(pc));
